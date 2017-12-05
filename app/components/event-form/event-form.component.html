@@ -1,0 +1,20 @@
+<form #eventForm="ngForm" (submit)="onSubmit()">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" required [(ngModel)]="model.title" name="title">
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="description" required [(ngModel)]="model.description" name="description"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="title">Date</label>
+        <input type="date" class="form-control" id="date" required [(ngModel)]="model.date" name="date">
+    </div>
+    <div class="form-group">
+        <label for="title">Time</label>
+        <input type="time" class="form-control" id="time" required [(ngModel)]="model.time" name="time">
+    </div>
+    <input type="hidden" id="id" name="id" [(ngModel)]="model.id">
+    <button type="submit" class="btn btn-success" [disabled]="!eventForm.form.valid">Submit</button>
+</form>

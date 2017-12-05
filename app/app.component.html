@@ -1,0 +1,106 @@
+<div class="main">
+    <div class="calendar-heading">
+        <div class="calendar-title pull-left">
+            <h2>{{selectedMonth | moment: 'MMMM YYYY'}}</h2>
+        </div>
+
+        <button class="btn-custom btn-info add-event" (click)="openEventAddForm()"><i
+                class="fa fa-plus"></i> Add event
+        </button>
+
+        <div class="input-group search-events pull-left">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+            <input type="text" class="form-control" placeholder="Search events here.." (input)="searchEvents($event.target.value)">
+            <div class="search-results" (clickOutside)="hideEventsDropdown()" *ngIf="showEventsDropdown">
+                <div *ngFor="let event of foundEvents" class="search-result" (click)="displayMonth(event.date)">
+                    <div class="search-result-date">{{event.date}} {{event.time}}</div>
+                    <div class="search-result-title">{{event.title}}</div>
+                    <div class="search-result-description">{{event.description}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pull-right">
+            <button class="btn-custom btn-info" (click)="displayPrevMonth()"><i class="fa fa-chevron-left"></i></button>
+            <button class="btn-custom btn-info" (click)="displayCurrentMonth()">Current month</button>
+            <button class="btn-custom btn-info" (click)="displayNextMonth()"><i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    <table class="calendar-tbl">
+        <thead>
+        <tr>
+            <th *ngFor="let weekDayName of weekDaysNames">
+                {{weekDayName}}
+            </th>
+        </tr>
+        </thead>
+        <tr *ngFor="let daysGroup of displayDays; let rowIndex = index">
+            <td *ngFor="let day of daysGroup; let dayIndex = index"
+                (click)="(day.disabled && displayMonth(day.date)) || (!day.disabled && openEventsList(rowIndex, dayIndex))"
+                [ngClass]="{'disabled': day.disabled, 'with-events': day.events.length > 0}">
+                <div>
+                    <div class="day-number" [ngClass]="{'today': day.today}">{{day.date | moment: 'D'}}</div>
+                    <div class="calendar-events" *ngIf="day.events.length > 0">
+                        <div class="event-title">
+                            {{day.events[0].title}}
+                        </div>
+                        <div class="event-description">
+                            {{day.events[0].description}}
+                        </div>
+                        <div class="event-time">
+                            {{day.events[0].time}}
+                        </div>
+                        <div class="events-quantity" *ngIf="day.events.length > 1">
+                            + {{day.events.length - 1}}
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<modal #eventFormModal>
+    <modal-header>
+        <h1>{{eventFormModel.id ? 'Edit event' : 'Add event'}}</h1>
+    </modal-header>
+    <modal-content>
+        <event-form [(model)]="eventFormModel"
+                    [(eventsList)]="eventsList"
+                    (afterEventChanged)="afterEventChanged($event)"></event-form>
+    </modal-content>
+</modal>
+
+<modal #eventsListModal>
+    <modal-header *ngIf="selectedDayIndex">
+        <h1>Events on {{displayDays[selectedRowIndex][selectedDayIndex].date | moment: 'D MMMM YYYY'}}</h1>
+    </modal-header>
+    <modal-content *ngIf="selectedDayIndex">
+        <div class="events-list" *ngIf="displayDays[selectedRowIndex][selectedDayIndex].events.length > 0">
+            <button class="btn-custom btn-info"
+                    (click)="openEventAddForm(displayDays[selectedRowIndex][selectedDayIndex].date)">
+                <i class="fa fa-plus"></i> Add new event
+            </button>
+            <div class="event" *ngFor="let event of displayDays[selectedRowIndex][selectedDayIndex].events">
+                <h3 class="time">{{event.time}}</h3>
+                <h3 class="title">{{event.title}}</h3>
+                <div class="description">{{event.description}}</div>
+                <div class="controls">
+                    <button class="btn-custom btn-warning" (click)="openEventEditForm(event)"><i
+                            class="fa fa-pencil"></i>
+                        Edit event
+                    </button>
+                    <button class="btn-custom btn-danger" (click)="deleteEvent(event.id)"><i class="fa fa-trash"></i>
+                        Delete event
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="displayDays[selectedRowIndex][selectedDayIndex].events.length === 0">
+            <p>No events found on this day. </p>
+            <p><a href="#" (click)="openEventAddForm(displayDays[selectedRowIndex][selectedDayIndex].date)">Do you want
+                to add one?</a></p>
+        </div>
+    </modal-content>
+</modal>
